@@ -4,54 +4,48 @@ pragma solidity ^0.8.6;
 
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 
-contract NP_premium is AccessControl {
+contract NP_premium is AccessControlEnumerable {
 
     uint storedData;
 
-    // Create a new role identifier for the owner role
+    // Creates owner role
     bytes32 public constant OWNER_ROLE = keccak256("OWNER_ROLE");
 
-    // Create a new role identifier for the admin role
+    // Creates admin role
     bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
 
-    constructor(address[] admins) {
-        // Grants contract creator full access to contract
-        _setupRole(OWNER_ROLE, owner);
-        // Sets owner rule as admin of admins role
+    constructor(address[] memory admins) {
+        // Grants contract creator full access to contract (OWNER_ROLE)
+        _setupRole(OWNER_ROLE, msg.sender);
+        // Gives OWNER_ROLE role control over ADMIN_ROLE
         _setRoleAdmin(ADMIN_ROLE, OWNER_ROLE);
-        // Grants admin role to inputted list of addresses
+        // Grants ADMIN_ROLE to inputted list of addresses
         for (uint256 i = 0; i < admins.length; i++){
             grantRole(ADMIN_ROLE, admins[i]);
         }
     }
 
-    function listAdmins() returns (address[] admins){
-        require(hasRole(ADMIN_ROLE, msg.sender), "Admin role required.");
-        uint256 adminCount = getRoleMemberCount(ADMIN_ROLE);
+    function listRole(bytes32 role) public view returns (address[] memory){
+        require(hasRole(ADMIN_ROLE, msg.sender) || hasRole(OWNER_ROLE, msg.sender), "Owner or Admin role required.");
+        uint256 roleCount = getRoleMemberCount(role);
 
-        address[] admins;
+        address[] memory users = new address[](roleCount);
 
-        for (uint256 i = 0; i < admins.length; i++){
-            admins.push(getRoleMember(ADMIN_ROLE, i));
+        for (uint256 i = 0; i < roleCount; i++){
+            users[i] = getRoleMember(role, i);
         }
 
-        return admins;
+        return users;
     }
 
     function set(uint x) public {
-        require(hasRole(ADMIN_ROLE, msg.sender), "Admin role required.");
+        require(hasRole(ADMIN_ROLE, msg.sender) || hasRole(OWNER_ROLE, msg.sender), "Owner or Admin role required.");
         storedData = x;
     }
 
     function get() public view returns (uint) {
         return storedData;
     }
-
-
-    // Finished access control. Need to test it is working now.
-
-
-
 }
 
 
