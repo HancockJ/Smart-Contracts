@@ -40,20 +40,29 @@ contract KarmeleonsFreeMint is ERC721, Ownable {
         return supply.current();
     }
 
-
-    // Retrieves the Karmeleons in owners account then returns karmeleons not been used for a free claim.
-    function remainingMints(address owner) public view returns (uint256[] memory) {
+    // Returns 2 numbers: The amount of Karmeleons the address has &
+    // the amount of karmeleons they have still eligible for free mint.
+    function karmeleonCount(address _owner) public view returns (uint, uint) {
         uint ownedKarmeleonCount = IERC721Enumerable(KARMELEON_ADDRESS).balanceOf(msg.sender);
         uint validKarmeleonCount = 0;
         for(uint i=0; i < ownedKarmeleonCount; i++){
-            if(!CLAIMED[IERC721Enumerable(KARMELEON_ADDRESS).tokenOfOwnerByIndex(owner, i)]){
+            if(!CLAIMED[IERC721Enumerable(KARMELEON_ADDRESS).tokenOfOwnerByIndex(_owner, i)]){
                 //Karmeleon is valid for mint
                 validKarmeleonCount++;
             }
         }
+        return (ownedKarmeleonCount, validKarmeleonCount);
+    }
+
+
+    // Retrieves the Karmeleons in owners account then returns karmeleons not been used for a free claim.
+    function remainingMints(address _owner) internal view returns (uint256[] memory) {
+        uint ownedKarmeleonCount;
+        uint validKarmeleonCount;
+        (ownedKarmeleonCount, validKarmeleonCount) = karmeleonCount(_owner);
         uint[] memory validKarmeleons = new uint[](validKarmeleonCount);
         for(uint i=0; i < ownedKarmeleonCount; i++){
-            uint karmeleonID = IERC721Enumerable(KARMELEON_ADDRESS).tokenOfOwnerByIndex(owner, i);
+            uint karmeleonID = IERC721Enumerable(KARMELEON_ADDRESS).tokenOfOwnerByIndex(_owner, i);
             if(!CLAIMED[karmeleonID]){
                 validKarmeleons[validKarmeleonCount - 1] = karmeleonID;
                 validKarmeleonCount--;
@@ -70,7 +79,7 @@ contract KarmeleonsFreeMint is ERC721, Ownable {
         for(uint i=0; i < _numberOfTokens; i++) {
             CLAIMED[mintsRemaining[i]] = true;
             supply.increment();
-            _safeMint(msg.sender, supply.current());
+            _mint(msg.sender, supply.current());
         }
     }
 
