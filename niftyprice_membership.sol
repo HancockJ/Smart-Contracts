@@ -5,19 +5,7 @@ pragma solidity ^0.8.6;
 import "@openzeppelin/contracts/access/AccessControlEnumerable.sol";
 
 
-// TODO: Create function to view membership ending time (Yourself, Owner, Admin access only)
-// TODO: Create function to manage a users membership period (add or remove time)
-// TODO: Create function to withdrawal funds
-
-// TODO: Possibly add a function to allow users to transfer their membership (Maybe with a small fee?)
-// TODO: Do we need to list members and their remaining time?
-
-// TODO: Test to make sure modifiers work
-// TODO: Create NatSpec style commenting on all functions
-// TODO: Add events and emit functions where necessary
-// TODO: Make sure all function and variable modifiers are accurate
-// TODO: Google how to make sure a contract is secured / best practices
-
+/// @title Membership system for NP Premium
 contract NP_premium is AccessControlEnumerable {
 
     uint constant month = 30 days;
@@ -76,6 +64,7 @@ contract NP_premium is AccessControlEnumerable {
         _setupRole(OWNER_ROLE, msg.sender);
         // Gives OWNER_ROLE role control over ADMIN_ROLE
         _setRoleAdmin(ADMIN_ROLE, OWNER_ROLE);
+        _setRoleAdmin(OWNER_ROLE, OWNER_ROLE);
         // Grants ADMIN_ROLE to inputted list of addresses
         for (uint256 i = 0; i < admins.length; i++){
             grantRole(ADMIN_ROLE, admins[i]);
@@ -112,13 +101,11 @@ contract NP_premium is AccessControlEnumerable {
         } else {
             monthsPayed = (pay * 1000) / cpm[2];
         }
-        return monthsPayed * 86400 / 1000;
+        return monthsPayed * month / 1000;
     }
 
     // @notice Creates/Extends a users membership, time determined by amount of ether sent
     function register() public payable {
-        // TODO: Confirm this works
-        // TODO: Confirm rest of logic still works in here
         require(msg.value >= membership.price * membership.tierDiscount[0] * membership.tierMinimum[0] / 100 );
         if(memberPool[msg.sender] <= block.timestamp){
             // Start a new membership
@@ -143,16 +130,11 @@ contract NP_premium is AccessControlEnumerable {
         return users;
     }
 
-    /// @notice Checks remaining time on membership.
+    /// @notice Checks remaining time on a users membership.
+    /// @param user Address of user to check membership
     /// @return Amount of time remaining in seconds. 0 indicates non-membership.
-    function membershipRemaining(address user) public view onlyAdmin returns (uint) {
+    function membershipRemaining(address user) public view returns (uint) {
         return(timeLeft(user));
-    }
-
-    /// @notice Shows remaining membership time the calling address has.
-    /// @return Amount of time remaining in seconds. 0 indicates non-membership.
-    function myMembershipRemaining() public view returns (uint) {
-        return timeLeft(msg.sender);
     }
 
     /// Internal function to give a users time remaining
@@ -166,7 +148,7 @@ contract NP_premium is AccessControlEnumerable {
     /// @notice Extends a users membership time in seconds
     function giftMembership(address user, uint time) external onlyAdmin {
         if(memberPool[user] <= block.timestamp){
-            memberPool[user] = block.timestamp += time;
+            memberPool[user] = block.timestamp + time;
         }
         else{
             memberPool[user] += time;
@@ -183,6 +165,10 @@ contract NP_premium is AccessControlEnumerable {
         payable(_receiver).transfer(_amount);
     }
 
+    // @notice js example - np.setMembershipPricing("50000000000000000",[1,3,12],[100,80,50])
+    // @param _price the price per month (in wei) (1000000000000000000 = 1 ether)
+    // @param _tierMinimum an array of 3 uints, the amount of months for each tier I.E. [1,3,12] = 1/3/12 month tiers
+    // @param _tierDiscount an array of 3 uints, the % you must pay for each tier I.E. [100,90,80] = 100%,90%,80% of price per month that each tier pays
     // @notice Sets the membership structure for the contract
     function setMembershipPricing(uint _price, uint[3] memory _tierMinimum, uint[3] memory _tierDiscount)  public onlyAdmin  {
         membership.price = _price;
@@ -190,15 +176,8 @@ contract NP_premium is AccessControlEnumerable {
         membership.tierDiscount = _tierDiscount;
     }
 
-
-    // CODE BELOW IS FOR TESTING PURPOSES AND SHOULD BE REMOVED BEFORE PRODUCTION.
-    uint storedData;
-
-    function set(uint x) public onlyAdmin {
-        storedData = x;
-    }
-
-    function get() public view returns (uint) {
-        return storedData;
+    // @return Array of the 7 price settings: [price, tierMinimum[0], tierMinimum[1], tierMinimum[2], tierDiscount[0], tierDiscount[1], tierDiscount[2]
+    function viewMembershipPricing() public view returns (uint[7] memory){
+        return [membership.price, membership.tierMinimum[0], membership.tierMinimum[1], membership.tierMinimum[2], membership.tierDiscount[0], membership.tierDiscount[1], membership.tierDiscount[2]];
     }
 }
