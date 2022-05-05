@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: MIT
-// Amended by Jack Hancock (@DblJackDiamond)
 
 pragma solidity >=0.7.0 <0.9.0;
 
@@ -8,13 +7,17 @@ import "@openzeppelin/contracts/utils/Counters.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
-contract KarmeleonsFreeMint is ERC721, Ownable {
+
+/// @title Karmeleons free mint contract
+/// @author Jack Hancock (@DblJackDiamond)
+/// @dev All function calls are currently implemented without side effects
+contract Karmz is ERC721, Ownable {
     using Strings for uint256;
     using Counters for Counters.Counter;
 
     Counters.Counter private supply;
 
-    address public KARMELEON_ADDRESS;
+    address public KARMELEONS_ADDRESS;
 
     string public uriPrefix = "";
     string public uriSuffix = ".json";
@@ -24,10 +27,10 @@ contract KarmeleonsFreeMint is ERC721, Ownable {
 
     mapping(uint => bool) CLAIMED;
 
-    bool public paused = false;
+    bool public paused = true;
 
-    constructor(string memory _name, string memory _symbol, address _karmeleonAddress) ERC721(_name, _symbol) {
-        KARMELEON_ADDRESS = _karmeleonAddress;
+    constructor(string memory _name, string memory _symbol, address _karmeleonsAddress) ERC721(_name, _symbol) {
+        KARMELEONS_ADDRESS = _karmeleonsAddress;
     }
 
     modifier mintCompliance(uint256 _numberOfTokens) {
@@ -36,17 +39,30 @@ contract KarmeleonsFreeMint is ERC721, Ownable {
         _;
     }
 
-    function totalSupply() public view returns (uint256) {
+
+    /// @return uint The amount of Karmz minted
+    function totalSupply() public view returns (uint) {
         return supply.current();
     }
 
-    // Returns 2 numbers: The amount of Karmeleons the address has &
-    // the amount of karmeleons they have still eligible for free mint.
+    /// @return address[] A list of all owner addresses from 1 to totalSupply()
+    function getAllOwners() public view onlyOwner returns (address[] memory){
+        address[] memory karmzOwners = new address[](totalSupply());
+        for(uint i=1; i <= totalSupply(); i++){
+            karmzOwners[i -1] = ownerOf(i);
+        }
+        return karmzOwners;
+    }
+
+
+    /// @param _owner Address of account to check for Karmeleons
+    /// @return uint The amount of Karmeleons the address has
+    /// @return uint The amount of karmeleons eligible for free mint
     function karmeleonCount(address _owner) public view returns (uint, uint) {
-        uint ownedKarmeleonCount = IERC721Enumerable(KARMELEON_ADDRESS).balanceOf(msg.sender);
+        uint ownedKarmeleonCount = IERC721Enumerable(KARMELEONS_ADDRESS).balanceOf(msg.sender);
         uint validKarmeleonCount = 0;
         for(uint i=0; i < ownedKarmeleonCount; i++){
-            if(!CLAIMED[IERC721Enumerable(KARMELEON_ADDRESS).tokenOfOwnerByIndex(_owner, i)]){
+            if(!CLAIMED[IERC721Enumerable(KARMELEONS_ADDRESS).tokenOfOwnerByIndex(_owner, i)]){
                 //Karmeleon is valid for mint
                 validKarmeleonCount++;
             }
@@ -55,14 +71,16 @@ contract KarmeleonsFreeMint is ERC721, Ownable {
     }
 
 
-    // Retrieves the Karmeleons in owners account then returns karmeleons not been used for a free claim.
-    function remainingMints(address _owner) internal view returns (uint256[] memory) {
+    /// @notice Retrieves the Karmeleons in owners account then returns karmeleons not been used for a free claim.
+    /// @param _owner Address of account to check for Karmeleons
+    /// @return uint[] Array of Eligible karmeleons by ID.
+    function remainingMints(address _owner) internal view returns (uint[] memory) {
         uint ownedKarmeleonCount;
         uint validKarmeleonCount;
         (ownedKarmeleonCount, validKarmeleonCount) = karmeleonCount(_owner);
         uint[] memory validKarmeleons = new uint[](validKarmeleonCount);
         for(uint i=0; i < ownedKarmeleonCount; i++){
-            uint karmeleonID = IERC721Enumerable(KARMELEON_ADDRESS).tokenOfOwnerByIndex(_owner, i);
+            uint karmeleonID = IERC721Enumerable(KARMELEONS_ADDRESS).tokenOfOwnerByIndex(_owner, i);
             if(!CLAIMED[karmeleonID]){
                 validKarmeleons[validKarmeleonCount - 1] = karmeleonID;
                 validKarmeleonCount--;
@@ -71,8 +89,9 @@ contract KarmeleonsFreeMint is ERC721, Ownable {
         return validKarmeleons;
     }
 
-
-    function mint(uint256 _numberOfTokens) public payable mintCompliance(_numberOfTokens) {
+    /// @notice Checks to make sure msg.sender has enough eligible karmeleons then mints the amount specified.
+    /// @param _numberOfTokens Address of account to check for Karmeleons
+    function mint(uint _numberOfTokens) public payable mintCompliance(_numberOfTokens) {
         require(!paused, "The contract is paused!");
         uint[] memory mintsRemaining = remainingMints(msg.sender);
         require(mintsRemaining.length >= _numberOfTokens, "You don't own enough non-claimed Karmeleons!");
@@ -104,6 +123,8 @@ contract KarmeleonsFreeMint is ERC721, Ownable {
         uriSuffix = _uriSuffix;
     }
 
+    /// @notice Allows owner to start and stop minting process
+    /// @param _state true = paused, false = not paused
     function setPaused(bool _state) public onlyOwner {
         paused = _state;
     }
