@@ -46,6 +46,7 @@ contract Karmz is ERC721, Ownable {
     Counters.Counter private supply;
 
     address public KARMELEONS_ADDRESS;
+    string public NOT_REVEALED_URI;
 
     string public uriPrefix = "";
     string public uriSuffix = ".json";
@@ -56,15 +57,26 @@ contract Karmz is ERC721, Ownable {
     mapping(uint => bool) public CLAIMED;
 
     bool public paused = true;
+    bool public revealed = false;
 
-    constructor(string memory _name, string memory _symbol, address _karmeleonsAddress) ERC721(_name, _symbol) {
+
+    constructor(string memory _name, string memory _symbol, address _karmeleonsAddress, string memory _notRevealedURI) ERC721(_name, _symbol) {
         KARMELEONS_ADDRESS = _karmeleonsAddress;
+        NOT_REVEALED_URI = _notRevealedURI;
     }
 
     modifier mintCompliance(uint256 _numberOfTokens) {
         require(supply.current() + _numberOfTokens <= MAX_SUPPLY, "Max supply exceeded!");
         require(_numberOfTokens > 0, "Invalid mint amount!");
         _;
+    }
+
+    function reveal() public onlyOwner {
+        revealed = true;
+    }
+
+    function setNotRevealedURI(string memory _notRevealedURI) public onlyOwner {
+        NOT_REVEALED_URI = _notRevealedURI;
     }
 
 
@@ -136,6 +148,10 @@ contract Karmz is ERC721, Ownable {
             _exists(_tokenId),
             "ERC721Metadata: URI query for nonexistent token"
         );
+
+        if(!revealed) {
+            return NOT_REVEALED_URI;
+        }
 
         string memory currentBaseURI = _baseURI();
         return bytes(currentBaseURI).length > 0
