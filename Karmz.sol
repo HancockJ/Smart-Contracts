@@ -53,7 +53,7 @@ contract Karmz is ERC721, Ownable {
     uint256 public MAX_SUPPLY = 3333;
     uint256 MINT_SUPPLY;
 
-    mapping(uint => bool) CLAIMED;
+    mapping(uint => bool) public CLAIMED;
 
     bool public paused = true;
 
@@ -166,3 +166,4 @@ contract Karmz is ERC721, Ownable {
         return uriPrefix;
     }
 }
+
