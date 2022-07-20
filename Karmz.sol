@@ -52,7 +52,6 @@ contract Karmz is ERC721, Ownable {
     string public uriSuffix = ".json";
 
     uint256 public MAX_SUPPLY = 3333;
-    uint256 MINT_SUPPLY;
 
     mapping(uint => bool) public CLAIMED;
 
