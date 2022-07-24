@@ -57,7 +57,7 @@ contract Gutterz is ERC721, Ownable, ReentrancyGuard  {
         return false;
     }
 
-    /// @return uint The amount of Karmz minted
+    /// @return uint The amount of Gutterz minted
     function totalSupply() public view returns (uint) {
         return supply.current();
     }
