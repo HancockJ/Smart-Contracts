@@ -20,11 +20,10 @@ contract Gutterz is ERC721, Ownable, ReentrancyGuard  {
     Counters.Counter private supply;
 
     uint256 public MAX_SUPPLY = 3000;
-/// TODO: Set these to mainnet addresses
-//    IERC1155 public CATS_ADDRESS = IERC1155();
-//    IERC1155 public RATS_ADDRESS = IERC1155();
-//    IERC721Enumerable public PIGEONS_ADDRESS = IERC721Enumerable();
-//    IERC721Enumerable public DOGS_ADDRESS = IERC721Enumerable();
+    IERC1155 public CATS_ADDRESS = IERC1155(0xEdB61f74B0d09B2558F1eeb79B247c1F363Ae452);
+    IERC1155 public RATS_ADDRESS = IERC1155(0xD7B397eDad16ca8111CA4A3B832d0a5E3ae2438C);
+    IERC721Enumerable public PIGEONS_ADDRESS = IERC721Enumerable(0x950b9476a4de757BB134483029AC4Ec17E739e3A);
+    IERC721Enumerable public DOGS_ADDRESS = IERC721Enumerable(0x6E9DA81ce622fB65ABf6a8d8040e460fF2543Add);
 
 
     mapping(address => uint) public CLAIM_COUNT;
