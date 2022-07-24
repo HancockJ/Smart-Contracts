@@ -75,7 +75,7 @@ contract Gutterz is ERC721, Ownable, ReentrancyGuard  {
     }
 
     /// @notice Allows the owner to mint unlimited Gutterz :)
-    function sudoMint(uint _amount, address _to) public onlyOwner mintCompliance(_amount) {
+    function ownerMint(uint _amount, address _to) public onlyOwner mintCompliance(_amount) {
         for(uint i=0; i < _amount; i++) {
             CLAIM_COUNT[msg.sender] += 1;
             supply.increment();
