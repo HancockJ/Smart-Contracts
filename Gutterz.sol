@@ -1,5 +1,32 @@
 //SPDX-License-Identifier: MIT
+/*
+                             /@\
+                            @@@@@
+                           #/   \#
+                          @@     @@
+                        #@@@     @@@#
+                       @@@**     **@@@
+                    /@@@@@         @@@@@\
+             @@@@@@@@@@     KARMZ     @@@@@@@@@@
+          /##@@@****#@@###         ###@@#****@@@#\
+         @@@@          @@@@@     @@@@@          @@@@
+        @@@              #@@     @@#              @@@
+        @@%##############&@@     @@###############@@@
+        @@@    @@@@      #@@     @@#     @@@@     @@@
+        @@@              #@@     @@#              @@@
+        @@@##          ##/         \##          ##@@@
+        @@@  @@@@@@@@@@   @@     @@   @@@@@@@@@@  @@@
+        @@@                                       @@@
+        @@@            ###############            @@@
+        @@@    @@@@@@@@@@/         \@@@@@@@@@@    @@@
+        @@@  @@@@@                         @@@@@  @@@
+        @@@##**                               **##@@@
+          #@@@@@@@                         @@@@@@@#
+               \@@@@@@@               @@@@@@@/
+                 '**@@@###        ###@@@**'
+                        \KARMELEONS/
 
+*/
 pragma solidity >=0.7.0 <0.9.0;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
@@ -29,7 +56,7 @@ contract Gutterz is ERC721, Ownable, ReentrancyGuard  {
     mapping(address => uint) public CLAIM_COUNT;
 
     constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {
-        
+
     }
 
     modifier mintCompliance(uint256 _amount) {
@@ -74,7 +101,7 @@ contract Gutterz is ERC721, Ownable, ReentrancyGuard  {
         }
     }
 
-    /// @notice Allows the owner to mint more than the wallet limit 
+    /// @notice Allows the owner to mint more than the wallet limit
     function ownerMint(uint _amount, address _to) public onlyOwner mintCompliance(_amount) {
         for(uint i=0; i < _amount; i++) {
             CLAIM_COUNT[msg.sender] += 1;
