@@ -167,6 +167,10 @@ contract Gutterz is ERC721, Ownable, ReentrancyGuard  {
         paused = _state;
     }
 
+    function reveal() public onlyOwner {
+        revealed = true;
+    }
+
     function withdraw() public onlyOwner {
         (bool os, ) = payable(owner()).call{value: address(this).balance}("");
         require(os);
