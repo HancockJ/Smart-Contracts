@@ -111,7 +111,7 @@ contract Gutterz is ERC721, Ownable, ReentrancyGuard  {
     /// @notice Checks to make sure msg.sender is eligible to mint the desired amount of Gutterz
     /// @param _amount How many Gutterz to mint
     function mint(uint _amount, uint _id) public mintCompliance(_amount) nonReentrant {
-        require(hasGutterID(msg.sender, _id), "You need to own a Gutter Animal to mint a Gutterz!");
+        require(hasGutterID(msg.sender, _id), "You need to own an OG Gutter Species to mint a Gutterz!");
         require(3 - balanceOf(msg.sender) - _amount >= 0, "You can only claim 3 Gutterz per wallet.");
         require(!paused, "The contract is paused!");
         for(uint i=0; i < _amount; i++) {
