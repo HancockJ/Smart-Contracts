@@ -61,7 +61,7 @@ contract Gutterz is ERC721, Ownable, ReentrancyGuard  {
 
     bool public paused = true;
     bool public revealed = false;
-    string public NOT_REVEALED_URI = "NOT_REVEALED";
+    string public NOT_REVEALED_URI = "ipfs://QmXzWaAMQgGVkACu4Yxbhd28Y1sMw6FW2hW7NaEVbEiu2o/hidden.json";
 
     string public uriPrefix = "";
     string public uriSuffix = ".json";
