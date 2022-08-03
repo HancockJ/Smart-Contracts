@@ -70,10 +70,10 @@ contract Gutterz is ERC721, Ownable, ReentrancyGuard  {
     string public _symbol = "GTRZ";
     uint256 public MAX_SUPPLY = 3000;
 
-    IERC1155 public CATS_ADDRESS = IERC1155(0x66C8f2Aa66e5745D62D4920Fc40d2662042Cc688);
-    IERC1155 public RATS_ADDRESS = IERC1155(0xEb2a81d99E8604FC08372b5Fe008F3EE338185E1);
-    IERC721Enumerable public PIGEONS_ADDRESS = IERC721Enumerable(0x47804DFcdF243DFcdb0be950DFFBB13386762a7E);
-    IERC721Enumerable public DOGS_ADDRESS = IERC721Enumerable(0xd1f54655a01E88b40BcD5925504648C418e00399);
+    IERC1155 public CATS_ADDRESS = IERC1155(0xEdB61f74B0d09B2558F1eeb79B247c1F363Ae452);
+    IERC1155 public RATS_ADDRESS = IERC1155(0xD7B397eDad16ca8111CA4A3B832d0a5E3ae2438C);
+    IERC721Enumerable public PIGEONS_ADDRESS = IERC721Enumerable(0x950b9476a4de757BB134483029AC4Ec17E739e3A);
+    IERC721Enumerable public DOGS_ADDRESS = IERC721Enumerable(0x6E9DA81ce622fB65ABf6a8d8040e460fF2543Add);
 
 
     constructor() ERC721(_name, _symbol) {}
@@ -159,6 +159,10 @@ contract Gutterz is ERC721, Ownable, ReentrancyGuard  {
 
     function setUriSuffix(string memory _uriSuffix) public onlyOwner {
         uriSuffix = _uriSuffix;
+    }
+
+    function reveal() public onlyOwner {
+        revealed = true;
     }
 
     /// @notice Allows owner to start and stop minting process
