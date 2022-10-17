@@ -8,7 +8,7 @@
     @#  @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&  #@
      @&@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@&@
      @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-      @@@@@@@@@@@@@@@@   GUTTERZ 2   @@@@@@@@@@@@@@@@@@
+      @@@@@@@@@@@@@@@@@  GUTTERZ 2  @@@@@@@@@@@@@@@@@@@
       @@@@@@@@@@@@@@ BY THE KARMELEONS @@@@@@@@@@@@@@@@
       @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
      @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -36,9 +36,9 @@ import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 
-/// @title Gutterz Gen 2 free mint contract
+/// @title Gutterz Gen 2 minting contract
 /// @author Jack (@DblJackDiamond) on Twitter
-/// @dev All function calls are currently implemented without side effects
+/// @dev All functions have been tested and work correctly
 contract GutterzTwo is ERC721, Ownable, ReentrancyGuard  {
     using Strings for uint256;
     using Counters for Counters.Counter;
@@ -50,7 +50,7 @@ contract GutterzTwo is ERC721, Ownable, ReentrancyGuard  {
     mapping(uint => bool) public CLAIMED;
 
     // Switch for turning public mint on and off
-    bool public PUBLIC_MINT_ON = true;
+    bool public REQUIRE_GUTTERZ = true;
     // Price if going through public mint
     uint256 public PUBLIC_COST = 0.07 ether;
 
@@ -65,7 +65,7 @@ contract GutterzTwo is ERC721, Ownable, ReentrancyGuard  {
 
     string public _name = "Gutterz Species 2";
     string public _symbol = "GTRZ2";
-    uint256 public MAX_SUPPLY = 2000;
+    uint256 public MAX_SUPPLY = 1000;
 
 
     IERC721Enumerable public KARMELEONS_CONTRACT = IERC721Enumerable(0xD551B203775c92279165fA69B5B8c1ee6ecEA793);
@@ -95,16 +95,14 @@ contract GutterzTwo is ERC721, Ownable, ReentrancyGuard  {
     }
 
     function checkWalletEligibility(address _wallet) public view returns (bool, uint) {
-        if(hasGutterz(_wallet)){
-            return (true, unusedKarmeleons(_wallet).length);
-        } else {
-            return (false, 0);
-        }
+            if(hasGutterz(_wallet) || !REQUIRE_GUTTERZ){
+                return (true, unusedKarmeleons(_wallet).length);
+            } else {
+                return (false, 0);
+            }
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////// 3 Mint types - free, public, and owner //////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////
 
     /// @notice Checks to make sure msg.sender is eligible to mint the desired amount of Gutterz
     /// @param _amount How many Gutterz to mint
@@ -123,7 +121,6 @@ contract GutterzTwo is ERC721, Ownable, ReentrancyGuard  {
     /// @notice Public mint for those that do not qualify for a free mint
     /// @param _amount How many Gutterz to mint
     function publicMint(uint _amount) public payable mintCompliance(_amount) nonReentrant {
-        require(PUBLIC_MINT_ON, "Minting only available to eligible holders right now");
         require(msg.value >= PUBLIC_COST * _amount, "Insufficient payment sent to mint");
         require(!paused, "The contract is paused!");
         for(uint i=0; i < _amount; i++) {
@@ -139,8 +136,6 @@ contract GutterzTwo is ERC721, Ownable, ReentrancyGuard  {
             _mint(_to, supply.current());
         }
     }
-    ////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////
 
     /// @return address[] A list of all owner addresses from 1 to totalSupply()
@@ -209,10 +204,10 @@ contract GutterzTwo is ERC721, Ownable, ReentrancyGuard  {
     }
 
 
-    /// @notice Allows owner to start and stop the public mint
-    /// @param _state true = paused, false = not paused
-    function setPublicMint(bool _state) public onlyOwner {
-        PUBLIC_MINT_ON = _state;
+    /// @notice Allows owner to change whether a gutterz 1 is required for mint or not
+    /// @param _state true = Gutterz Required
+    function setRequireGutterz(bool _state) public onlyOwner {
+       REQUIRE_GUTTERZ = _state;
     }
 
     /// @notice Allows owner to start and stop minting process
@@ -230,3 +225,6 @@ contract GutterzTwo is ERC721, Ownable, ReentrancyGuard  {
         return uriPrefix;
     }
 }
+
+
+
